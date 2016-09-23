@@ -1,0 +1,105 @@
+---
+title: "Tika Test"
+author: "Gaurav Chaturvedi"
+date: "9/23/2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+print_lines <- function (a, num_lines) {
+long=length(a)
+m <- min(long, num_lines)
+for (i in 1:m){
+    print(a[i])
+}
+}
+```
+
+## Tika Test
+
+This is a test of the Open Source OCR Tool called Tika. 
+
+Tika is a linux library that claims to have parsers and readers across formats JPG/PNG/PDF etc. 
+
+So lets test it out with:
+- PDF (XML)
+- Images 
+
+
+## Tika with PDF (XML) 1
+
+So let us test how Tika does with a PDF (XML). This is a paper on bitcoin technology (bitcoin.pdf)
+
+```{r pdf_xml1, echo=FALSE}
+command <- "java"
+args <- c('-jar', '/home/ubuntu/tika/tika-1.13/tika-app/target/tika-app-1.13.jar', 
+          '-t', 'file:///home/ruser/tika-ocr/bitcoin.pdf') # if file use file:///home/ub..
+stderr <- '/home/ruser/tika-ocr/stderr.txt'
+a <- system2(command, args=args, stdout=TRUE, stderr=stderr)
+print_lines(a, 10)
+```
+
+Notes:
+
+- Tika does fairly well with plain text (headers etc.)
+- Images are ignored (including text in images) 
+- Mathematical symbols are distorted 
+
+
+## Tika with PDF (XML) 2
+
+Let us test how Tika does with a PDF (XML) with tables. This is a CPF statement 
+
+```{r pdf_xml2, echo=FALSE}
+command <- "java"
+args <- c('-jar', '/home/ubuntu/tika/tika-1.13/tika-app/target/tika-app-1.13.jar', 
+          '-t', 'file:///home/ruser/tika-ocr/cpfcon.pdf') # if file use file:///home/ub..
+stderr <- '/home/ruser/tika-ocr/stderr.txt'
+a <- system2(command, args=args, stdout=TRUE, stderr=stderr)
+print_lines(a, 20)
+```
+
+Notes:
+
+- Tika does fairly well in extracting both the header and the table (although header appears at the bottom)
+- Table is still formatted, the spaces have been padded with a '.'
+- It will be easy to extract key information from this 
+
+## Tika with Image (with text) 1
+
+Let us test how Tika does with a image with text 
+
+```{r pdf_img1, echo=FALSE}
+command <- "java"
+args <- c('-jar', '/home/ubuntu/tika/tika-1.13/tika-app/target/tika-app-1.13.jar', 
+          '-t', 'file:///home/ruser/tika-ocr/img1.gif') # if file use file:///home/ub..
+stderr <- '/home/ruser/tika-ocr/stderr.txt'
+system2(command, args=args, stdout=TRUE, stderr=stderr)
+```
+
+Notes:
+
+- The output is blank. Tika could not extract text from the image 
+
+## Tika with Image (with text) 2
+
+Let us test how Tika does with a image with text (this is a scanned pdf)
+
+```{r pdf_img2, echo=FALSE}
+command <- "java"
+args <- c('-jar', '/home/ubuntu/tika/tika-1.13/tika-app/target/tika-app-1.13.jar', 
+          '-t', 'file:///home/ruser/tika-ocr/scanned.pdf') # if file use file:///home/ub..
+stderr <- '/home/ruser/tika-ocr/stderr.txt'
+system2(command, args=args, stdout=TRUE, stderr=stderr)
+```
+
+Notes:
+
+- The output is blank. Tika could not extract text from the image 
+
+
+## Conclusion 
+
+Tika is good at extracting text from PDF (XML) documents only. It does not work well with images / scanned pdfs. 
+
